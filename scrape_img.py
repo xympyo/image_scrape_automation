@@ -78,17 +78,21 @@ def scrape_images_from_product(url):
     images_root = "images"
     os.makedirs(images_root, exist_ok=True)
 
-    folder = os.path.join(images_root, sanitize_filename(slug))
-    os.makedirs(folder, exist_ok=True)
-
     print(f"\n🌀 Processing product: {url}")
     try:
         r = requests.get(url, headers=HEADERS)
         r.raise_for_status()
         soup = BeautifulSoup(r.text, "html.parser")
 
-        slug = urlparse(url).path.strip("/").replace("products/", "")
-        folder = sanitize_filename(slug)
+        # Safely extract slug first
+        match = re.search(r"/products/([^/?#]+)", url)
+        if not match:
+            print(f"⚠️  Couldn't extract slug from: {url}")
+            return
+        slug = match.group(1)
+
+        # Use slug to build folder path
+        folder = os.path.join(images_root, sanitize_filename(slug))
         os.makedirs(folder, exist_ok=True)
 
         img_tags = soup.find_all("img")
@@ -99,7 +103,7 @@ def scrape_images_from_product(url):
             if not src:
                 continue
 
-            # Skip logos and static assets
+            # Skip static assets/logos/icons/etc
             if any(
                 x in src.lower() for x in ["logo", "icon", "header", "svg", "avatar"]
             ):
