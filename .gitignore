@@ -1,6 +1,14 @@
-# Ignore everything
-*
+# Ignore folders
+/cardback/
+/env/
+/dataset/
+/front_side/
+/images/
 
-# But not these!
+# Ignore file types
+*.csv
+*.pth
+
+# Do not ignore these (assuming they are in the root directory)
 !.gitignore
-!scrape_img.py
+!*.py
